@@ -6,9 +6,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/DevPutat/QwenTUI/internal/types"
 )
+
+var timeOut = 60 * time.Second
 
 func Send(query string, conf types.Conf) (string, error) {
 	requestBody := types.ChatRequest{
@@ -28,7 +31,9 @@ func Send(query string, conf types.Conf) (string, error) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+conf.ApiKey)
 
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: timeOut,
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", err

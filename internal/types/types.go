@@ -19,5 +19,5 @@ type ChatMessage struct {
 type ChatResponse struct {
 	Choices []struct {
 		Message ChatMessage `json:"message"`
-	} `json:"messages"`
+	} `json:"choices"`
 }
