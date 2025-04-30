@@ -23,3 +23,4 @@ go.work.sum
 
 # env file
 .env
+tui-ai-chat.conf

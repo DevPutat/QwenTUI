@@ -13,7 +13,7 @@ import (
 
 var timeOut = 60 * time.Second
 
-func Send(query string, conf types.Conf) (string, error) {
+func Send(query string, conf *types.Conf) (string, error) {
 	requestBody := types.ChatRequest{
 		Model: conf.ModelName,
 		Messages: []types.ChatMessage{

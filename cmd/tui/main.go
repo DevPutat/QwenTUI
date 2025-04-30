@@ -10,10 +10,10 @@ import (
 
 func main() {
 	flagQuery := flag.String("query", "", "query for request")
-	flagKey := flag.String("key", "", "key for api")
+	//flagKey := flag.String("key", "", "key for api")
 	flag.Parse()
 
-	c := config.Config(*flagKey)
+	c := config.Config()
 
 	if len(*flagQuery) > 0 {
 		fmt.Println(request.Send(*flagQuery, c))
