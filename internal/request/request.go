@@ -56,3 +56,50 @@ func Send(query string, conf *types.Conf) (string, error) {
 
 	return "", fmt.Errorf("пустой ответ от API")
 }
+
+func SendStream(query string, conf *types.Conf, app *types.App) {
+
+	requestBody := types.ChatRequest{
+		Model: conf.ModelName,
+		Messages: []types.ChatMessage{
+			{Role: "user", Content: query},
+		},
+		Stream: true,
+	}
+	jsonData, err := json.Marshal(requestBody)
+	if err != nil {
+		return
+	}
+	req, err := http.NewRequest("POST", conf.ApiURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+conf.ApiKey)
+
+	client := &http.Client{
+		Timeout: timeOut,
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	reader := resp.Body
+	buf := make([]byte, 1024)
+	for {
+		n, err := reader.Read(buf)
+		if n > 0 {
+			chunk := string(buf[:n])
+			app.UpdateOutput(chunk)
+		}
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			break
+		}
+	}
+	return
+}
