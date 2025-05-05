@@ -92,7 +92,8 @@ func SendStream(query string, conf *types.Conf, app *types.App) {
 		n, err := reader.Read(buf)
 		if n > 0 {
 			chunk := string(buf[:n])
-			app.UpdateOutput(chunk)
+			// app.UpdateOutput(chunk)
+			processChunk(app, chunk)
 		}
 		if err == io.EOF {
 			break
@@ -102,4 +103,15 @@ func SendStream(query string, conf *types.Conf, app *types.App) {
 		}
 	}
 	return
+}
+
+func processChunk(app *types.App, chunk string) {
+	var response types.StreamResponse
+	err := json.Unmarshal([]byte(chunk), &response)
+	if err != nil {
+		return
+	}
+	if len(response.Choices) > 0 && response.Choices[0].Delta.Content != "" {
+		app.UpdateOutput(response.Choices[0].Delta.Content)
+	}
 }

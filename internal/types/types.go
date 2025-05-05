@@ -8,6 +8,22 @@ type Conf struct {
 	ApiKey    string
 }
 
+type StreamResponse struct {
+	ID       string         `json:"id"`
+	Object   string         `json:"object"`
+	Created  int64          `json:"created"`
+	Model    string         `json:"model"`
+	Choices  []StreamChoice `json:"choices"`
+	Logprobs any            `json:"logprobs,omitempty"`
+}
+
+type StreamChoice struct {
+	Index              int         `json:"index"`
+	Delta              ChatMessage `json:"delta"`
+	FinishReason       string      `json:"finish_reason,omitempty"`
+	NativeFinishReason string      `json:"native_finish_reason,omitempty"`
+}
+
 type ChatRequest struct {
 	Model    string        `json:"model"`
 	Messages []ChatMessage `json:"messages"`

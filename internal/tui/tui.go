@@ -8,7 +8,7 @@ import (
 )
 
 func NewApp(conf *types.Conf) {
-	tApp := tview.NewApplication()
+	tApp := tview.NewApplication().EnableMouse(true)
 	tInputChatField := tview.NewInputField().
 		SetLabel("Введите запрос: ").
 		SetFieldWidth(50)
@@ -25,43 +25,42 @@ func NewApp(conf *types.Conf) {
 		ChatField: tOutputField,
 	}
 
-	sendButton := tview.NewButton("Отправить").
-		SetSelectedFunc(func() {
+	// sendButton := tview.NewButton("Отправить").
+	// 	SetSelectedFunc(func() {
+	// 		query := tInputChatField.GetText()
+	// 		if query == "" {
+	// 			return
+	// 		}
+	// 		tInputChatField.SetText("")
+	// 		tOutputField.Clear()
+	// 		go request.SendStream(query, conf, app)
+	// 	})
+
+	flex := tview.NewFlex().SetDirection(tview.FlexRow)
+	flex.AddItem(tOutputField, 0, 5, false)
+	flex.AddItem(tInputChatField, 0, 1, true)
+
+	tApp.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		// case tcell.KeyTab:
+		// 	curFocus = (curFocus + 1) & len(elements)
+		// 	tApp.SetFocus(elements[curFocus])
+		// 	return nil
+		case tcell.KeyEnter:
 			query := tInputChatField.GetText()
 			if query == "" {
-				return
+				return nil
 			}
 			tInputChatField.SetText("")
 			tOutputField.Clear()
 			go request.SendStream(query, conf, app)
-		})
 
-	grid := tview.NewGrid().
-		SetRows(0, 3).
-		SetColumns(0).
-		AddItem(tInputChatField, 0, 0, 1, 1, 0, 0, true).
-		AddItem(sendButton, 1, 0, 1, 1, 0, 0, false).
-		AddItem(tOutputField, 2, 0, 1, 1, 0, 0, false)
-
-	focusManger := tview.NewFlex().AddItem(grid, 0, 1, true)
-	curFocus := 0
-	elements := []tview.Primitive{tInputChatField, sendButton}
-
-	tApp.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		switch event.Key() {
-		case tcell.KeyTab:
-			curFocus = (curFocus + 1) & len(elements)
-			app.App.SetFocus(elements[curFocus])
-			return nil
-		case tcell.KeyBacktab:
-			curFocus = (curFocus - 1 + len(elements)) & len(elements)
-			app.App.SetFocus(elements[curFocus])
 			return nil
 		}
 		return event
 	})
 
-	if err := tApp.SetRoot(focusManger, true).SetFocus(tInputChatField).Run(); err != nil {
+	if err := tApp.SetRoot(flex, true).SetFocus(tInputChatField).Run(); err != nil {
 		panic(err)
 	}
 }
